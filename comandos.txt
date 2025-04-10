@@ -1,0 +1,8 @@
+git clone https://github.com/Gian-vie/Sistemas-Operacionais-PY.git
+git branch -C Diego
+git branch
+git checkout Diego
+git add .
+
+
+git branch -M Diego
