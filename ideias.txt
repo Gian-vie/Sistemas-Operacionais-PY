@@ -1,0 +1,17 @@
+# apresentação
+ao menos a apresentação tem que ser em linux
+
+# programação (usar python)
+uma classe CPU, associada a uma fila processos
+uma classe fila Processos
+variável perfil - CPU-bound, I/O-bound
+variável next-time-I/O
+    gera aleatoriamente nº entre 100-200 se CPU-bound
+    gera aleatoriamente nº entre ?-? se I/O-bound
+variável aleatória próximo processo - gera nº aleatório, decrementa com tempo e ao zerar cria novo processo e entra na fila, pode ser classe CPU
+variável de tempo total de simulação
+
+tarefa mais curta primeiro (sistemas em lote) precisa variável aleatória do tempo do próximo ciclo
+
+montar em python em relação a escalonamento por chaveamento circular
+
