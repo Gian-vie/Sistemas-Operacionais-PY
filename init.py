@@ -1,1 +1,1 @@
-alteração Gian asd
+print("Hello World")
