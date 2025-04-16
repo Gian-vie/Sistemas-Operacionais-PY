@@ -1,0 +1,157 @@
+primitivas de comunicação que bloqueiam em vez de gastar tempo de CPU
+par sleep/wakeup
+    -sleep é uma chamada de sistema que faz com que o processo que a chama durma, isto é, fique suspenso até que outro processo o desperte
+    -wakeup tem um parâmetro: o processo a ser despertado
+semáforos
+mutexes (futexes - recurso dem Linux)
+primitivas wait e signal em monitores
+troca de mensagens com send e receive
+barreiras
+
+problema produtor-consumidor:
+dois processos compartilham um buffer comum e de tamanho fixo
+um deles (produtor) põe informação dentro do buffer e o outro (consumidor) retira
+o problema se origina quando produtor quer colocar novo item no buffer, mas está cheio
+    -solução: colocar produtor para dormir e só despertá-lo quando consumidor remover um ou mais itens
+da mesma maneira, se consumidor quiser remover item do buffer e perceber que está vazio, ele dormirá até que produtor ponha algo no buffer e desperte
+
+problema de ambos dormirem ao mesmo tempo
+pode ocorrer pelo fato de a variável count ter acesso irrestrito
+seria possível a seguinte situação: buffer está vazio e consumidor acabou de ler a variável count para verificar se é igual a 0
+nesse instante. escalonador decide parar de executar o consumidor temporariamente e começa a executar o produtor
+produtor insere um item no buffer, incrementa a variável count e percebe que seu valor agora é 1
+inferindo que count era 0 e que consumidor deveria dormir, produtor chama wakeup para acordar consumidor
+infelizmente o consumidor ainda não está logicamente adormecido, então o sinal para acordar é perdido
+na próxima vez que o consumidor executar, testará o valor de count anteriormente lido por ele, verificará que o valor é 0 e dormirá
+mais cedo ou mais tarde, o produtor preencherá todo buffer e também dormirá
+ambos dormirão para sempre
+
+semáforo:
+Dijkstra sugeriu usar uma variável inteira para contar o número de sinais de acordar salvos para uso futuro
+de acordo com a proposta dele, foi introduzido um novo tipo de variável, chamada semáforo, que poderia conter o valor 0 (indicando que nenhum sinal de acordar foi salvo) ou algum valor positivo se um ou mais sinais de acordar estivessem pendentes
+
+primitivas down e up:
+duas operações sobre semáforos propostas por Dijkstra
+down verifica se valor>0, se sim então será posto para dormir
+verificar o valor, alterá-lo e possivelmente ir dormir são tarefas executadas todas como uma única ação atômica e indivisível
+up incrementa o valor de um dado semáforo
+se um ou mais processos estivessem dormindo naquele semáforo, um deles seria escolhido pelo sistema e seria dada a permissão para terminar seu down
+
+mutexes:
+versão simplificada de semáforo; são adequadas apenas gerenciar a exclusão mútua de algum recurso ou parte de código compartilhada; são fáceis de implementar e eficientes; pode estar em um dos dois estados seguintes: desimpedido ou impedido
+
+monitor:
+para facilitar escrita correta de programas, Hoare e Brinch Hansen propuseram uma unidade básica de sincronização de alto nível chamada monitor, que é uma coleção de rotinas, variáveis e estruturas de dados, tudo isso agrupado em um tipo especial de módulo ou pacote; processos podem chamar as rotinas em um monitor quando quiserem, mas [...]
+Cabe ao compilador implementar a exclusão mútua nas entradas do monitor.
+Um monitor é uma coleção de rotinas, variáveis e estruturas de dados, tudo isso agrupado em um tipo especial de módulo ou pacote.
+Somente um processo pode estar ativo em um monitor em um dado momento.
+
+métodos synchronized de Java: adicionando a palavra-chave synchronized à declaração de um método, Java garante que uma vez iniciado qualquer thread executando aquele método, a nenhum outro thread será perimitido executar qualquer outro método synchronized naquela classe
+
+troca de mensagens e chamadas de sistema associadas:
+esse métoo de comunicação entre processos usa duas primitivas (send e receive) que, assim como os semáforos, mas diferentemente dos monitores, são chamadas de sistema e não construção de linguagem
+dessa maneira, elas podem facilmente ser colocadas em rotinas de bibliotecas, como:
+    send (destination, & message);
+    receive (source, & message);
+se nenhuma mensagem estiver disponível, o receptor poderá ficar bloqueado até que alguma mensagem chegue ou, como alternativa, ele pode retornar imediatamente acompanhado de um código de erro
+
+problemas e dificuldades de projeto que apresentam sistemas de troca de mensagens:
+mensagens podem ser perdidas pela rede
+mensagens podem chegar duplicadas
+autenticação: como o cliente pode saber que está se comunicando com o servidor de arquivos real e não com um impostor?
+
+exemplo onde barreiras podem ser usadas:
+processamento de matrizes grandes que exigem uso de processamento paralelo para aumentar a velocidade do cálculo
+processos diferentes trabalham com diferentes partes da matriz, calcuando os elementos da nova matriz a partir dos valores anteriores e de acordo com as leis da física, por exemplo
+contudo, um processo só pode começar uma iteração n+1 quando a iteração n terminar
+o meio de chegar a esse objetivo é programar cada processo de maneira que ele execute uma operação barrier depois que terminar sua parte da iteração
+quando todos tiverem feito sua parte, a nova matriz (a entrada para próxima iteração) estará pronta e todos os processos serão simultaneamente liberados [...]
+
+escalonador e algoritmo de escalonamento
+se somente 1 CPU se encontrar disponível, deverá ser feita uma escolha de qual processo executar em seguida
+a parte do SO que faz a escolha é chamada de escalonador e o algoritmo que ele usa é chamado de escalonamento
+
+escalonamento em computadores pessoais e  servidores
+em computadores pessoais, na maior parte do tempo existe apenas um processo ativo
+quando o usuário digita um comando para um processador de textos, o escalonador não precisa trabalha muito para perceber qual processo executar - o processador de textos é o único candidato
+com o passar dos anos, os computadores ficaram tão mais rápidos que a CPU raramente chegará a ser um recurso escasso
+a maioria dos programas para computadores pessoais é limitada pela velocidade com que o usuário pode entrar dados e não pela taxa na qual a CPU é capaz de processá-liberados
+como consequência, o escalonamento não é tão importante em PCs simples
+em servidores e estações de trabalho de alto desempenho, é comum haver múltiplos processos competindo pela CPU e, portanto, o escalonamento torna-se importante novamente
+por exemplo, quando a CPU precisar decidir entre executar um processo que reúne estatísticas diárias e um que atende às solicitações de usuários, estes ficarão muito mais satisfeitos se o último tiver precedência na CPU
+
+troca de contexto
+além de escolher o processo certo para executar, o escalonador também deve se preocupar em fazer uso eficiente da CPU, pois chavear processos é muito custoso
+de início, deve ocorrer um chaveamento de modo usuário para modo núcleo
+depois, o estado atual do processo deve ser salvo, armazenando-se inclusive os seus registradores
+em muitos sistemas, o mapa de memória (ex: bits de referêcia à memória na tabela de páginas) também deve ser salvoem seguida, um novo processo precisa ser selecionado
+depois disso, a MMU tem de ser recarregada com o mapa de memória do novo processo
+por fim, o novo processo precisa ser iniciado
+além disso tudo, o chaveamento do processo normalmente invalida toda a memória cache, forçando-a a ser dinamicamente recarregada da memória principal por duas vezes - ao entrar/sair do núcleo
+realizar muitos chaveamentos de processos por segundo pode comprometer uma grande quantidade de tempo de CPU, portanto todo cuidado é pouco
+
+processos CPU-bound gastam a maior parte do tempo computando - vinculados à computação ou à CPU (novo); apresentam em geral longos surtos de uso de CPU e esporádicas esperas por E/S
+processos I/O-bound passam a maior parte do tempo esperando E/S - vinculados à E/S (novo)
+têm pequenos surtos de uso da CPU e esperas frequentes por E/SO
+quando os processos são orientados à E/S, são necessários alguns deles para manter a CPU totalmente ocupada
+
+quando escalonar?
+quando se cria um novo processo; uma decisão de escalonamento deve ser tomada ao término de um processo
+quando um processo bloqueia para E/S, sobre um semáforo ou por alguma outra razão
+quando ocorre uma interrupção de E/SO
+se um hardware de relógio fornece interrupções periódicas a 50Hz, 60Hz ou alguma outra frequência, uma decisão de escalonamento pode ser tomada a cada interrupção de relógio ou a cada k-ésima interrupção de relógio
+
+algoritmo preemptivo
+os algoritmos de escalonamento podem ser dividos em 2 categorias quanto ao modo como tratam essas interrupções de relógio
+um algoritmo de escalonamento não preemptivo escolhe um processo para executar e então o deixa executar até que ele seja bloqueado ou até que ele voluntariamente libere a CPU
+na verdade nenhuma decisão de escalonamento é tomada durante as interrupções de relógio
+por outro lado um algoritmo preemptivo escolhe um processo e o deixa em execução por um tempo máximo fixado
+se ainda estiver executrando, ele será suspenso e [...]
+
+O escalonamento preemptivo requer a existência de uma interrupção de relógio ao fim do intervalo de tempo para que o controle sobre a CPU seja devolvido ao escalonador. Se não houver relógio disponível, o escalonamento não preemptivo será a única opção.
+
+ambientes que merecem distinçao quando se fala em categorias de algoritmos de escalonamento
+lote, interativo, tempo real
+
+objetivos de algoritmos de escalonamento
+todos os sistemas:
+justiça - dar a cada processo uma porção justa da CPU; aplicação da política - verificar se a política estabelecida é cumprida; equilíbrio - manter ocupadas todas as partes do sistema
+sistemas em lote:
+vazão (throughput) - maximizar o nº de tarefas por hora; tempo de retorno - minimizar o tempo entre a submissão e o término; utilização de CPU - manter a CPU ocupada o tempo todo
+sistemas interativos:
+tempo de resposta - responder rapidamente às requisições; proporcionalidade - satisfazer às expectativas dos usuários
+sistemas de tempo real:
+cumprimento dos prazos - evitar perda de dados; previsibilidade - evitar a degradação da qualidade em sistemas multimídia
+
+vazão é o número de tarefas por hora que o sistema terminar
+tempo de retorno é estatisticamente o tempo médio do momento em que uma tarefa em lote é submetida até o momento em que ela é terminada
+
+algoritmos de escalonamento para sistemas em lote:
+primeiro a chegar, primeiro a ser servidor - não preemptivo; CPU é atribuída aos processos na ordem em que eles a requisitam; há uma fila única de processos prontos; à medida que chegam outras tarefas, são encaminhadas ao fim da fila; quando processo em execução é bloqueado, o primeiro na fila é o próximo a executar; quando um processo bloqueado fica pronto, ele é posto no fim da fila; grande vantagem desse algoritmo é que ele é fácil de entender e igualmente fácil de programar
+tarefa mais curta primeiro - supõe como previamente conhecidos todos os tempos de execução; quando várias tarefas igualmente importantes estiverem postadas na fila de entrada à espera de serem iniciadas,, o escalonador escolhe a tarefa mais curta primeiro
+próximo de menor tempo restante - versão preemptivo da tarefa mais curta primeiro é o próximo de menor tempo restante; escalonador sempre escolhe o processo cujo tempo de execução restante seja o menor; quando chega uma nova tarefa, seu tempo real é comparado ao tempo restante do processo em curso; se, para terminar, a nova tarefa precisar de menos tempo que o processo corrent. então esse será suspenso e a nova tarefa será iniciada
+
+algoritmos de escalonamento para sistemas interativos:
+escalonamento por chaveamento circular (round-robin) - um dos mais antigos, simples, justos e amplamente usados; a cada processo é atribuído um intervalo de tempo, o seu quantum, no qual ele é permitido executar; se ao final do quantum o processo ainda estiver executando, a CPU sofrerá preempção e será dada a outro processo; se o processo foi bloqueado ou terminou antes que o quantum tenha decorrido então a CPU é chaveada para outro processo; quando o processo usa todo o seu quantum, ele é colocado no final da lista
+    dimensionamento de um quantum: adotar um quantum muito curto causa muitos chaveamentos de processo e reduz a eficiência da CPU; mas um quantum muito longo pode gerar uma resposta pobre às requisições interativas curtas; um quantum em torno de 20-50ms é bastante razoável
+    
+escalonamento por prioridades - a cada processo é atribuída uma prioridade e ao processo executável com a prioridade mais alta é permitido executar; para evitar que processos de alta prioridade executem indefinidamente, o escalonador pode reduzir a prioridade do processo em execução a cada tique de relógio, ou seja, a cada interrupção de relógio
+filas múltiplas - pode ter filas por prioridade; processos na classe mais alta seriam executados por 1 quantum; processos na classe seguinte seriam executados por 2 quantum
+próxmo processo mais curto - processos interativos geralmente seguem o padrão de esperar por comando, executar comando, esperar por comando e assim adiante; se execução de cada comando = tarefa isolada, então poderíamos minimizar o tempo de resposta geral executando a tarefa mais curta primeiro; único problema é saber qual dos processos atualmente executáveis é mais curto; uma saída é realizara uma estimativa com base no comportamento passado e então executar o processo cujo tempo de execução estimado seja menor
+escalonamento garantido - método completamente diferente de lidar com o escalonamento é fazer promessas reais sobre o desempenho aos usuários e então satisfazê-los; uma promessa realista e fácil de cumprir é essa: se houver N usuários conectados enquanto você estiver trabalhando, você receberá cerca de 1/N de CPU; para fazer vale essa promessa, o sistema deve manter o controle da quantidade de CPU que cada processo recebe desde sua criação
+escalonamento por loteria - ideia básica é dar bilhetes de loteria aos processos, cujos prêmios são vários recursos do sistema, como tempo de CPU; se houver uma decisão de escalonamento, um bilhete de loteria será escolhido aleatoriamente e o processo que tem o bilhete conseguirá o recurso; aos processos mais importantes podem ser atribuídos bilhetes extras para aumentar as chances
+escalonamento por fração justa - alguns sistemas consideram a propriedade do processo antes de escaloná-lo; nesse modelo, a cada usuário é alocada uma fração da CPU e o escalonador escolhe os processos de modo que garanta essa fração; assim, se dois usuários tiverem 50% da CPU prometida a cada um deles, cada um obterá os 50% não importanto quantos processos eles tenham gerado
+
+sistema de tempo real:
+aquele no qual o tempo tem uma função essencial; em geral 1 ou + dispositivos físicos externos ao computador geram estímulos e o computador deve reagir apropriadamente a eles dentro de um dado intervalo de tempo; ex: o computador em um CD Player obtém os bits que chegam do drive e precisa convertê-los em música [...]
+
+categorizados sistemas de tempo real:
+crítico: prazos absolutos que devem ser cumpridos
+não crítico: descumprimento ocasional é indesejável mas tolerável
+em ambos os casos, comportamento de tempo real é implementado dividindo-se o programa em vários processos cujo comportamento é previamente conhecido; de modo geral, esses processos têm uma vida curta e podem executar em bem menos de 1s; quando é detectado um evento externo, o trabalho do escalonador é escalonar os processos de tal maneira que todos os prazos sejam cumpridos
+
+escalonamento da política de escalonamento
+nenhum dos escalonadores discutidos aceita qualquer entrada proveniente de processos de usuário sobre decisões de escalonamento; como resultado, escalonador raramente faz melhor escolha; significa que algoritmo de escalonamento é de algum modo parametrizado, mas os params podem ser preenchidos pelos processos de usuários
+
+escalonamento de threads: 1 thread pode ocupar todo seu quantum (mesmo do processo) ou bloquear e assim bloquear o processo; thread precisa explicitamente liberar CPU para outros threads
+threads de núcleo: quando próximo thread é de outro processo, há troca de contexto (chaveamento); eescalonador deve estar ciente que selecionado outro é mais custoso
