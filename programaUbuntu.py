@@ -153,4 +153,7 @@ if __name__ == "__main__":
     root.mainloop()
 
 
-# tentando subir
+# para executar
+
+# sudo apt update 
+# sudo apt install python3-tk
