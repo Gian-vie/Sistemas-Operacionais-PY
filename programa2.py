@@ -44,7 +44,7 @@ class SimuladorInterface:
         self.contador_nome = 1
 
         # Estilo
-        self.fonte = ("Consolas", 11)
+        self.fonte = ("Courier New", 11)
         self.cor_fg = "#eeeeee"
         self.bg = "#1e1e1e"
         self.highlight = "#444444"
@@ -131,12 +131,12 @@ class SimuladorInterface:
     def log_console(self, texto):
         self.console_text.insert(tk.END, texto + "\n")
         self.console_text.see(tk.END)
-    
+
     def executar_tudo(self):
         while self.cpu.fila:
             self.executar_tick()
             self.master.update()  # Atualiza a interface visual
-    
+
 
     def definir_quantum(self):
         try:
