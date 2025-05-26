@@ -1,6 +1,8 @@
 import tkinter as tk
 import random
 
+io = 1
+
 class Proc:
     def __init__(self, nome):
         self.nome = str(nome)
@@ -21,12 +23,12 @@ class CPU:
 
         atual = self.fila[0]
         if atual.tempo <= self.quantum:
-            self.tempoExec += atual.tempo
+            self.tempoExec += atual.tempo + io
             self.fila.pop(0)
             return f"{atual.nome} finalizado!"
         else:
             atual.tempo -= self.quantum
-            self.tempoExec += self.quantum
+            self.tempoExec += self.quantum + io
             self.fila.append(self.fila.pop(0))
             return f"{atual.nome} executado por {self.quantum}, resta {atual.tempo}"
 
@@ -117,6 +119,7 @@ class SimuladorInterface:
 
     def executar_tick(self):
         resultado = self.cpu.executar1Tick()
+        self.log_console(f"valor de I/O = {io}")
         self.log_console(resultado)
         self.atualizar_interface()
 
