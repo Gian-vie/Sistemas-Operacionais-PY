@@ -129,12 +129,18 @@ class SimuladorInterface:
         self.console_text.see(tk.END)
 
     def definir_quantum(self):
-        try:
-            valor = int(self.entry_quantum.get())
-            self.cpu.quantum = valor
-            self.lbl_quantum.config(text=f"Quantum : {valor:02d}")
-        except ValueError:
-            self.log_console("Valor inválido para quantum")
+        if len(self.cpu.fila) == 0:
+            try:
+                valor = int(self.entry_quantum.get())
+                if valor > 0:
+                    self.cpu.quantum = valor
+                    self.lbl_quantum.config(text=f"Quantum : {valor:02d}")
+                else:
+                    self.log_console("Valor inválido para quantum")    
+            except ValueError:
+                self.log_console("Valor inválido para quantum")
+        else:
+            self.log_console("Existem processos na fila")
 
     def atualizar_interface(self):
         self.lbl_num_proc.config(text=f"Processos: {len(self.cpu.fila):02d}")
