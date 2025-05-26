@@ -73,16 +73,16 @@ class SimuladorInterface:
         self.cpu_frame = tk.LabelFrame(master, text="CPU", fg="white", bg="black", font=("Courier", 22), bd=2, relief="groove")
         self.cpu_frame.place(x=400, y=20, width=440, height=320)
 
-        self.lbl_quantum = tk.Label(self.cpu_frame, text="Quantum : 05", fg="white", bg="black", anchor="w")
+        self.lbl_quantum = tk.Label(self.cpu_frame, text="Quantum : 05", fg="white", bg="black", font=("Courier", 16), anchor="w")
         self.lbl_quantum.pack(anchor="w", padx=10)
 
-        self.lbl_tempo_exec = tk.Label(self.cpu_frame, text="Tempo de execução : 000", fg="white", bg="black", anchor="w")
+        self.lbl_tempo_exec = tk.Label(self.cpu_frame, text="Tempo de execução : 000", fg="white", bg="black", font=("Courier", 16), anchor="w")
         self.lbl_tempo_exec.pack(anchor="w", padx=10)
 
-        self.lbl_proc_restante = tk.Label(self.cpu_frame, text="Tempo restante : --", fg="white", bg="black", anchor="w")
+        self.lbl_proc_restante = tk.Label(self.cpu_frame, text="Tempo restante : --", fg="white", bg="black", font=("Courier", 16), anchor="w")
         self.lbl_proc_restante.pack(anchor="w", padx=10)
 
-        self.lbl_nome_proc = tk.Label(self.cpu_frame, text="Processo: N/A", fg="white", bg="black", anchor="w")
+        self.lbl_nome_proc = tk.Label(self.cpu_frame, text="Processo: N/A", fg="white", bg="black", font=("Courier", 16), anchor="w")
         self.lbl_nome_proc.pack(anchor="w", padx=10)
 
         self.btn_tick = tk.Button(self.right_frame, text="⏱ Passar 1 Tempo", command=self.executar_tick,
