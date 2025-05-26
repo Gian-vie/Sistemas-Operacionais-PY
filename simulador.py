@@ -39,11 +39,11 @@ class SimuladorInterface:
         self.master = master
         master.title("Simulador de CPU")
         master.configure(bg='#1e1e1e')
-        master.geometry("750x300")
+        master.geometry("1200x650")
 
         self.contador_nome = 1
 
-        self.fonte = ("Consolas", 11)
+        self.fonte = ("Consolas", 18)
         self.cor_fg = "#eeeeee"
         self.bg = "#1e1e1e"
         self.highlight = "#444444"
@@ -64,14 +64,14 @@ class SimuladorInterface:
                                       font=self.fonte, bg=self.highlight, fg=self.cor_fg)
         self.btn_add_proc.pack(pady=10)
 
-        self.console_frame = tk.LabelFrame(master, text="Console", fg="white", bg="black", bd=2, relief="groove", font=("Courier", 10))
-        self.console_frame.place(x=20, y=120, width=200, height=150)
+        self.console_frame = tk.LabelFrame(master, text="Console", fg="white", bg="black", bd=2, relief="groove", font=("Courier", 22))
+        self.console_frame.place(x=20, y=180, width=350, height=400)
 
-        self.console_text = tk.Text(self.console_frame, bg="black", fg="white", font=("Courier", 9), wrap="word")
+        self.console_text = tk.Text(self.console_frame, bg="black", fg="white", font=("Courier", 16), wrap="word")
         self.console_text.pack(expand=True, fill="both")
 
-        self.cpu_frame = tk.LabelFrame(master, text="CPU", fg="white", bg="black", font=("Courier", 12), bd=2, relief="groove")
-        self.cpu_frame.place(x=250, y=20, width=220, height=160)
+        self.cpu_frame = tk.LabelFrame(master, text="CPU", fg="white", bg="black", font=("Courier", 22), bd=2, relief="groove")
+        self.cpu_frame.place(x=400, y=20, width=440, height=320)
 
         self.lbl_quantum = tk.Label(self.cpu_frame, text="Quantum : 05", fg="white", bg="black", anchor="w")
         self.lbl_quantum.pack(anchor="w", padx=10)
