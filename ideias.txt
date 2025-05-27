@@ -15,3 +15,9 @@ tarefa mais curta primeiro (sistemas em lote) precisa variável aleatória do te
 
 montar em python em relação a escalonamento por chaveamento circular
 
+# pós 1ª apresentação
+cada processo: tempoAtual-tempoInicial (turn around time)
+tempo máximo de execução
+acabar simulação
+em que tempo iniciou execução do processo
+I/O Bound: unidade de tempo fixa quando vai para entrada e saída

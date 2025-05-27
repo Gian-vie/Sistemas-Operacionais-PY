@@ -51,6 +51,7 @@ Siga os passos abaixo para rodar o projeto em uma máquina Linux com Python inst
 
 ```bash
 sudo apt update
+sudo apt upgrade
 ```
 
 ### 2. Instale o python e a biblioteca Tkinter
